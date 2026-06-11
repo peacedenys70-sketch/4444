@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IFRI MentorLink – Mes Matchs</title>
+  <title>IFRI MentorLink – Messagerie</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/match.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/messenger.css') }}" />
   <style>
+    .chat-bubble{max-width:72%;padding:0.6rem 1rem;border-radius:18px;margin-bottom:0.5rem;font-size:0.88rem;line-height:1.55;word-break:break-word}
+    .chat-bubble.me{background:#7c3aed;color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+    .chat-bubble.other{background:#f3f4f6;color:#111827;margin-right:auto;border-bottom-left-radius:4px}
+    #chatMessages{height:calc(100vh - 310px);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:2px}
+    .conv-item{cursor:pointer;padding:0.75rem;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:0.5rem;transition:background 0.15s;text-decoration:none;display:block}
+    .conv-item:hover,.conv-item.active{background:#ede9fe}
+    .conv-avatar{width:42px;height:42px;min-width:42px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7c3aed;font-size:0.9rem;overflow:hidden;flex-shrink:0}
+    .conv-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
     .sidebar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-    .mentor-avatar{width:52px;height:52px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;
-      justify-content:center;font-weight:700;color:#7c3aed;font-size:1.1rem;flex-shrink:0;overflow:hidden}
-    .mentor-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
   </style>
 </head>
 <body>
@@ -27,8 +32,8 @@
       <a href="/dashboard" class="nav-item-link"><i class="bi bi-grid-1x2 nav-icon"></i> Tableau de bord</a>
       <a href="/annonces"  class="nav-item-link"><i class="bi bi-megaphone nav-icon"></i> Annonces</a>
       <div class="sidebar-section-label">Social</div>
-      <a href="/messages"  class="nav-item-link"><i class="bi bi-chat-dots nav-icon"></i> Messagerie</a>
-      <a href="/matching"  class="nav-item-link active"><i class="bi bi-people nav-icon"></i> Mes matchs</a>
+      <a href="/messages"  class="nav-item-link active"><i class="bi bi-chat-dots nav-icon"></i> Messagerie</a>
+      <a href="/matching"  class="nav-item-link"><i class="bi bi-people nav-icon"></i> Mes matchs</a>
       <a href="/planning"  class="nav-item-link"><i class="bi bi-calendar-week nav-icon"></i> Planning</a>
       <div class="sidebar-section-label">Compte</div>
       <a href="/profil"    class="nav-item-link"><i class="bi bi-person-circle nav-icon"></i> Profil</a>
@@ -37,10 +42,7 @@
     <div class="sidebar-footer">
       <a href="/profil" class="sidebar-user">
         <div class="sidebar-avatar" id="sidebarAvatar">?</div>
-        <div>
-          <div class="sidebar-user-name" id="sidebarName">…</div>
-          <div class="sidebar-user-role" id="sidebarRole"></div>
-        </div>
+        <div><div class="sidebar-user-name" id="sidebarName">…</div></div>
       </a>
     </div>
   </aside>
@@ -49,28 +51,46 @@
   <header class="topbar">
     <div class="d-flex align-items-center gap-3">
       <button class="topbar-hamburger" id="hamburgerBtn"><i class="bi bi-list"></i></button>
-      <span class="topbar-title">Mes matchs & Suggestions</span>
+      <span class="topbar-title">Messagerie</span>
     </div>
   </header>
 
   <main class="main-content">
+    <div class="row g-3" style="height:calc(100vh - 120px)">
 
-    <!-- Suggestions -->
-    <h5 class="fw-bold mb-3">Suggestions de mentors</h5>
-    <div id="suggestionsGrid" class="row g-3 mb-5">
-      <div class="col-12 text-center py-4 text-muted">
-        <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+      <!-- Liste conversations -->
+      <div class="col-md-4 col-lg-3">
+        <h6 class="fw-bold mb-3">Conversations</h6>
+        <div id="convList">
+          <p class="text-muted text-center py-3">
+            <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+          </p>
+        </div>
       </div>
-    </div>
 
-    <!-- Demandes reçues -->
-    <h5 class="fw-bold mb-3 mt-5">Demandes reçues</h5>
-    <div id="demandesGrid" class="row g-3">
-      <div class="col-12 text-center py-4 text-muted">
-        <span class="spinner-border spinner-border-sm me-2"></span>Chargement…
+      <!-- Zone chat -->
+      <div class="col-md-8 col-lg-9">
+        <div id="chatZone" style="display:none;flex-direction:column;height:100%;background:#fff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px">
+            <div class="conv-avatar" id="chatAvatar">?</div>
+            <strong id="chatPartnerName" style="font-size:0.95rem">Conversation</strong>
+          </div>
+          <div id="chatMessages" class="flex-grow-1"></div>
+          <div style="padding:0.75rem;border-top:1px solid #e5e7eb;display:flex;gap:8px">
+            <input type="text" id="msgInput" class="form-control" placeholder="Votre message…"
+              style="border-radius:999px" />
+            <button class="btn btn-mentorlink" id="btnSend" style="border-radius:999px;padding:0 1.2rem">
+              <i class="bi bi-send-fill"></i>
+            </button>
+          </div>
+        </div>
+        <div id="chatEmpty" class="d-flex align-items-center justify-content-center h-100 text-muted flex-column gap-2">
+          <i class="bi bi-chat-dots" style="font-size:3rem;opacity:0.3"></i>
+          <span>Sélectionnez une conversation</span>
+        </div>
       </div>
-    </div>
 
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -86,20 +106,6 @@
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    function avatarHtml(photo, prenom, nom, bg='#ede9fe', color='#7c3aed') {
-      if (photo) return `<img src="${photo}" alt="avatar">`;
-      return `${escHtml((prenom||'?')[0])}${escHtml((nom||'?')[0])}`;
-    }
-
-    function showToast(msg, type='info') {
-      const t = document.createElement('div');
-      t.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
-      t.style.cssText = 'z-index:9999;min-width:260px;border-radius:12px;font-size:0.88rem';
-      t.textContent = msg;
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 3500);
-    }
-
     document.getElementById('hamburgerBtn').addEventListener('click', () =>
       document.getElementById('sidebar').classList.toggle('open'));
     document.getElementById('sidebarOverlay').addEventListener('click', () =>
@@ -108,163 +114,150 @@
       e.preventDefault(); localStorage.clear(); window.location.href = '/login';
     });
 
-    // Charger sidebar
+    let currentUser  = null;
+    let currentConvId = null;
+    let currentPartner = null;
+    let pollInterval = null;
+    let lastMsgCount = 0;
+
+    // Charger l'utilisateur
     fetch('/users/me', { headers: authH() }).then(r => r.json()).then(u => {
+      currentUser = u;
       const sa  = document.getElementById('sidebarAvatar');
       const ini = ((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
       if (u.photo) sa.innerHTML = `<img src="${u.photo}" alt="avatar">`;
       else sa.textContent = ini;
       document.getElementById('sidebarName').textContent = `${u.prenom} ${u.nom}`;
-      document.getElementById('sidebarRole').textContent = `${u.niveau} – ${u.filiere}`;
+      // Ouvrir une conv depuis URL (?conv=ID)
+      const convIdFromUrl = new URLSearchParams(window.location.search).get('conv');
+      if (convIdFromUrl) {
+        openConversation(parseInt(convIdFromUrl), 'Conversation', null);
+      }
     });
 
-    // ── Suggestions ──────────────────────────────────────────
-    async function loadSuggestions() {
+    // ── Charger les conversations ──────────────────────────
+    async function loadConversations() {
       try {
-        const res  = await fetch('/matching/suggestions', { headers: authH() });
+        const res  = await fetch('/matching/mes-conversations', { headers: authH() });
         if (!res.ok) throw new Error();
         const list = await res.json();
-        const grid = document.getElementById('suggestionsGrid');
+        const div  = document.getElementById('convList');
 
         if (!list.length) {
-          grid.innerHTML = `<p class="text-muted py-3 col-12 text-center">
-            Aucune suggestion.<br>
-            <a href="/profil" class="link-violet">Ajoutez des lacunes dans votre profil</a> pour trouver des mentors.
-          </p>`;
+          div.innerHTML = `
+            <div class="alert alert-info" style="font-size:0.82rem">
+              <i class="bi bi-info-circle me-1"></i>
+              Aucune conversation active.<br>
+              <a href="/matching" class="alert-link">Trouver des mentors →</a>
+            </div>`;
           return;
         }
 
-        grid.innerHTML = list.map(u => `
-          <div class="col-sm-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm" style="border-radius:16px">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="mentor-avatar">
-                    ${u.photo ? `<img src="${u.photo}" alt="avatar">` : `${escHtml((u.prenom||'?')[0])}${escHtml((u.nom||'?')[0])}`}
-                  </div>
-                  <div>
-                    <div class="fw-bold">${escHtml(u.prenom)} ${escHtml(u.nom)}</div>
-                    <div style="font-size:0.78rem;color:#6b7280">${escHtml(u.niveau)} – ${escHtml(u.filiere)}</div>
-                  </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span style="font-size:0.78rem;color:#6b7280">Compatibilité</span>
-                  <span style="font-weight:700;color:#7c3aed">${u.score}%</span>
-                </div>
-                <div style="background:#ede9fe;border-radius:999px;height:6px;overflow:hidden;margin-bottom:1rem">
-                  <div style="width:${Math.min(u.score,100)}%;height:100%;background:linear-gradient(90deg,#a78bfa,#7c3aed);border-radius:999px;transition:width 1s"></div>
-                </div>
-                <div class="mb-2">
-                  ${(u.competences||[]).map(c => `
-                    <span class="badge me-1" style="background:#d1fae5;color:#059669;font-size:0.7rem">
-                      ${escHtml(typeof c === 'object' ? c.nom_competence : c)}
-                    </span>`).join('')}
-                </div>
-                <button class="btn btn-sm w-100 btn-mentorlink" onclick="createMatch(${u.id_user},${u.score})">
-                  <i class="bi bi-person-plus me-1"></i>Envoyer une demande
-                </button>
+        div.innerHTML = list.map(c => `
+          <div class="conv-item${currentConvId===c.id_conversation?' active':''}"
+               onclick="openConversation(${c.id_conversation},'${escHtml(c.partenaire.prenom)} ${escHtml(c.partenaire.nom)}','${c.partenaire.photo||''}')">
+            <div class="d-flex align-items-center gap-2">
+              <div class="conv-avatar">
+                ${c.partenaire.photo ? `<img src="${c.partenaire.photo}" alt="avatar">` : `${escHtml((c.partenaire.prenom||'?')[0])}${escHtml((c.partenaire.nom||'?')[0])}`}
+              </div>
+              <div style="overflow:hidden">
+                <div style="font-weight:600;font-size:0.88rem;color:#111">${escHtml(c.partenaire.prenom)} ${escHtml(c.partenaire.nom)}</div>
+                <div style="font-size:0.72rem;color:#6b7280">${escHtml(c.partenaire.niveau||'')} – ${escHtml(c.partenaire.filiere||'')}</div>
               </div>
             </div>
           </div>`).join('');
       } catch(e) {
-        document.getElementById('suggestionsGrid').innerHTML =
-          '<p class="text-muted text-center py-3 col-12">Erreur lors du chargement des suggestions.</p>';
+        document.getElementById('convList').innerHTML =
+          '<p class="text-muted text-center" style="font-size:0.82rem">Erreur de chargement.</p>';
       }
     }
 
-    async function createMatch(mentorId, score) {
+    // ── Ouvrir une conversation ────────────────────────────
+    function openConversation(convId, partnerName, partnerPhoto) {
+      currentConvId  = convId;
+      currentPartner = { name: partnerName, photo: partnerPhoto };
+      lastMsgCount   = 0;
+
+      document.getElementById('chatPartnerName').textContent = partnerName;
+      const chatAvatar = document.getElementById('chatAvatar');
+      if (partnerPhoto) chatAvatar.innerHTML = `<img src="${partnerPhoto}" alt="avatar">`;
+      else chatAvatar.textContent = (partnerName||'?').substring(0,2).toUpperCase();
+
+      document.getElementById('chatZone').style.display  = 'flex';
+      document.getElementById('chatEmpty').style.display = 'none';
+
+      // Marquer active
+      document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+      if (pollInterval) clearInterval(pollInterval);
+      loadMessages();
+      pollInterval = setInterval(loadMessages, 3000);
+    }
+    window.openConversation = openConversation;
+
+    // ── Charger les messages ───────────────────────────────
+    async function loadMessages() {
+      if (!currentConvId) return;
       try {
-        const res  = await fetch('/matching/', {
+        const res  = await fetch(`/messages/${currentConvId}`, { headers: authH() });
+        if (!res.ok) return;
+        const msgs = await res.json();
+
+        // Ne redessiner que si de nouveaux messages
+        if (msgs.length === lastMsgCount) return;
+        lastMsgCount = msgs.length;
+
+        const box = document.getElementById('chatMessages');
+        const atBottom = box.scrollHeight - box.scrollTop <= box.clientHeight + 60;
+
+        box.innerHTML = msgs.map(m => {
+          const isMe = m.expediteur_id === currentUser?.id_user;
+          return `
+            <div class="d-flex ${isMe?'justify-content-end':'justify-content-start'}">
+              <div class="chat-bubble ${isMe?'me':'other'}">
+                ${escHtml(m.contenu)}
+                <div style="font-size:0.65rem;opacity:0.6;text-align:right;margin-top:3px">
+                  ${new Date(m.date_envoi).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        if (atBottom || lastMsgCount <= 1) box.scrollTop = box.scrollHeight;
+      } catch(e) {}
+    }
+
+    // ── Envoyer un message ─────────────────────────────────
+    async function sendMessage() {
+      const input   = document.getElementById('msgInput');
+      const btnSend = document.getElementById('btnSend');
+      const contenu = input.value.trim();
+      if (!contenu || !currentConvId) return;
+
+      input.value    = '';
+      input.disabled = true;
+      btnSend.disabled = true;
+
+      try {
+        const res = await fetch(`/messages/${currentConvId}`, {
           method: 'POST', headers: authH(),
-          body: JSON.stringify({ mentor_id: mentorId, score })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showToast('✅ Demande envoyée ! En attente de réponse du mentor.', 'success');
-          loadSuggestions();
-        } else if (res.status === 409) {
-          showToast('Une demande existe déjà avec ce mentor.', 'warning');
-        } else {
-          showToast(data.error || 'Erreur.', 'danger');
-        }
-      } catch(e) { showToast('Erreur réseau.', 'danger'); }
-    }
-
-    // ── Demandes reçues ────────────────────────────────────
-    async function loadDemandes() {
-      try {
-        const res  = await fetch('/matching/mes-demandes', { headers: authH() });
-        if (!res.ok) throw new Error();
-        const list = await res.json();
-        const grid = document.getElementById('demandesGrid');
-
-        if (!list.length) {
-          grid.innerHTML = '<p class="text-muted py-3 col-12 text-center">Aucune demande reçue pour l\'instant.</p>';
-          return;
-        }
-
-        grid.innerHTML = list.map(m => `
-          <div class="col-sm-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm" style="border-radius:16px">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="mentor-avatar" style="background:#fef3c7;color:#d97706">
-                    ${m.mentore.photo ? `<img src="${m.mentore.photo}" alt="avatar">` : `${escHtml((m.mentore.prenom||'?')[0])}${escHtml((m.mentore.nom||'?')[0])}`}
-                  </div>
-                  <div>
-                    <div class="fw-bold">${escHtml(m.mentore.prenom)} ${escHtml(m.mentore.nom)}</div>
-                    <div style="font-size:0.78rem;color:#6b7280">${escHtml(m.mentore.niveau)} – ${escHtml(m.mentore.filiere)}</div>
-                  </div>
-                </div>
-                <div class="d-flex justify-content-between mb-3">
-                  <span class="badge" style="background:${m.statut==='ACCEPTE'?'#d1fae5':m.statut==='REFUSE'?'#fee2e2':'#ede9fe'};
-                    color:${m.statut==='ACCEPTE'?'#065f46':m.statut==='REFUSE'?'#991b1b':'#7c3aed'}">
-                    ${m.statut==='ACCEPTE'?'✅ Accepté':m.statut==='REFUSE'?'❌ Refusé':'⏳ En attente'}
-                  </span>
-                  <small class="text-muted">${new Date(m.date_matching).toLocaleDateString('fr-FR')}</small>
-                </div>
-                ${m.statut === 'EN_ATTENTE' ? `
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-success w-50" onclick="repondre(${m.id_matching},'ACCEPTE')">
-                      <i class="bi bi-check2 me-1"></i>Accepter
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger w-50" onclick="repondre(${m.id_matching},'REFUSE')">
-                      <i class="bi bi-x me-1"></i>Refuser
-                    </button>
-                  </div>` : ''}
-                ${m.id_conversation && m.statut==='ACCEPTE' ? `
-                  <a href="/messages?conv=${m.id_conversation}" class="btn btn-sm btn-mentorlink w-100 mt-2">
-                    <i class="bi bi-chat-dots me-1"></i>Ouvrir la conversation
-                  </a>` : ''}
-              </div>
-            </div>
-          </div>`).join('');
-      } catch(e) {
-        document.getElementById('demandesGrid').innerHTML =
-          '<p class="text-muted text-center py-3 col-12">Erreur lors du chargement des demandes.</p>';
-      }
-    }
-
-    async function repondre(id_matching, statut) {
-      try {
-        const res = await fetch(`/matching/${id_matching}/statut`, {
-          method: 'PUT', headers: authH(),
-          body: JSON.stringify({ statut })
+          body: JSON.stringify({ contenu })
         });
         if (res.ok) {
-          showToast(statut==='ACCEPTE' ? '✅ Demande acceptée !' : '❌ Demande refusée.', statut==='ACCEPTE'?'success':'warning');
-          loadDemandes();
-        } else {
-          const d = await res.json();
-          showToast(d.error || 'Erreur.', 'danger');
+          lastMsgCount = 0; // forcer le rechargement
+          await loadMessages();
         }
-      } catch(e) { showToast('Erreur réseau.', 'danger'); }
+      } catch(e) {}
+      input.disabled = false;
+      btnSend.disabled = false;
+      input.focus();
     }
-    window.repondre = repondre;
-    window.createMatch = createMatch;
 
-    loadSuggestions();
-    loadDemandes();
+    document.getElementById('btnSend').addEventListener('click', sendMessage);
+    document.getElementById('msgInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    loadConversations();
   </script>
 </body>
 </html>
