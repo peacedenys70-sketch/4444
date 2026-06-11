@@ -143,3 +143,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg-page);color:
   .conv-list-panel.hidden{transform:translateX(-100%)}
   .btn-back-list{display:flex}
 }
+
+.btn-mentorlink{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff !important;border:none;border-radius:10px;padding:.58rem 1.2rem;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .18s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.btn-mentorlink:hover{color:#fff !important;transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,.36)}
+.btn-mentorlink:active{transform:translateY(0)}
