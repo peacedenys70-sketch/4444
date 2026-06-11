@@ -102,3 +102,14 @@ body{font-family:"DM Sans",system-ui,sans-serif;background:var(--bg-page);color:
 .btn-profil:hover{background:var(--violet-light)}
 .btn-goto-search{display:inline-flex;align-items:center;gap:.5rem;background:var(--violet);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-size:.875rem;font-weight:600;margin-top:1.25rem;text-decoration:none;transition:all .2s;font-family:inherit;box-shadow:0 4px 12px rgba(124,58,237,.28)}
 .btn-goto-search:hover{background:var(--violet-dark);color:#fff;transform:translateY(-1px)}
+
+/* ── Bouton principal MentorLink ── */
+.btn-mentorlink{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff !important;border:none;border-radius:10px;padding:.58rem 1.2rem;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .18s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.btn-mentorlink:hover{color:#fff !important;transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,.36)}
+.btn-mentorlink:active{transform:translateY(0)}
+.link-violet{color:var(--violet);text-decoration:none;font-weight:500}
+.link-violet:hover{color:var(--violet-dark);text-decoration:underline}
+.fw-700{font-weight:700 !important}
+
+/* ── Sidebar avatar photo ── */
+.sidebar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
