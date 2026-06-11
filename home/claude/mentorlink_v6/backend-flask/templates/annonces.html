@@ -9,32 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/annonces.css') }}" />
   <style>
-  .skill-tag {
-    display: inline-block;
-    padding: 0.35em 0.85em;
-    border-radius: 999px;
-    border: 2px solid #7c3aed;
-    color: #7c3aed;
-    font-size: 0.8rem;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.15s;
-    background: white;
-  }
-  .skill-tag.active {
-    background: #7c3aed;
-    color: white;
-  }
-  .skill-tag:hover {
-    background: #ede9fe;
-  }
-</style>
+    .skill-tag{display:inline-block;padding:.35em .85em;border-radius:999px;border:2px solid #7c3aed;color:#7c3aed;font-size:.8rem;cursor:pointer;user-select:none;transition:all .15s;background:#fff}
+    .skill-tag.active{background:#7c3aed;color:#fff}
+    .skill-tag:hover:not(.active){background:#ede9fe}
+    .sidebar-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+    .author-avatar{width:32px;height:32px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7c3aed;font-size:.73rem;flex-shrink:0;overflow:hidden}
+    .author-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  </style>
 </head>
 <body>
 
   <aside class="sidebar" id="sidebar">
     <a href="/dashboard" class="sidebar-logo">
-      <img src="/static/img/logo-mentorlink.png" alt="IFRI MentorLink" class="sidebar-logo-img">
+      <img src="/static/img/logo-mentorlink.png" alt="IFRI MentorLink" style="width:38px;height:38px;border-radius:10px;object-fit:cover;flex-shrink:0">
       <div><div class="sidebar-logo-text">IFRI MentorLink</div><div class="sidebar-logo-sub">UAC – Bénin</div></div>
     </a>
     <nav class="sidebar-nav">
@@ -47,7 +34,7 @@
       <a href="/planning"  class="nav-item-link"><i class="bi bi-calendar-week nav-icon"></i> Planning</a>
       <div class="sidebar-section-label">Compte</div>
       <a href="/profil"    class="nav-item-link"><i class="bi bi-person-circle nav-icon"></i> Profil</a>
-      <a href="#" id="logoutBtn" class="nav-item-link" style="color:#ef4444;"><i class="bi bi-box-arrow-left nav-icon"></i> Déconnexion</a>
+      <a href="#" id="logoutBtn" class="nav-item-link" style="color:#ef4444"><i class="bi bi-box-arrow-left nav-icon"></i> Déconnexion</a>
     </nav>
     <div class="sidebar-footer">
       <a href="/profil" class="sidebar-user">
@@ -75,8 +62,6 @@
 
   <main class="main-content">
     <div id="alertMsg" class="d-none mb-3"></div>
-
-    <!-- Liste des annonces -->
     <div id="annoncesGrid" class="row g-3">
       <div class="col-12 text-center py-5 text-muted">
         <span class="spinner-border spinner-border-sm me-2"></span>Chargement des annonces…
@@ -84,7 +69,7 @@
     </div>
   </main>
 
-  <!-- Modal : Créer une annonce -->
+  <!-- Modal nouvelle annonce -->
   <div class="modal fade" id="modalAnnonce" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -96,7 +81,7 @@
           <div id="modalAlert" class="d-none mb-2"></div>
           <div class="mb-3">
             <label class="form-label fw-medium">Titre</label>
-            <input type="text" id="anTitre" class="form-control" placeholder="Ex: Aide en Python" />
+            <input type="text" id="anTitre" class="form-control" placeholder="Ex : Aide en Python" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-medium">Description</label>
@@ -121,13 +106,19 @@
           </div>
           <div class="mt-3">
             <label class="form-label fw-medium">Compétences concernées</label>
-            <div class="d-flex flex-wrap gap-2" id="anCompTags">
+            <div class="d-flex flex-wrap gap-2 mb-2" id="anCompTags">
               <span class="skill-tag" data-val="Python">Python</span>
               <span class="skill-tag" data-val="JavaScript">JavaScript</span>
               <span class="skill-tag" data-val="SQL">SQL</span>
               <span class="skill-tag" data-val="Algorithmique">Algorithmique</span>
               <span class="skill-tag" data-val="Réseaux">Réseaux</span>
               <span class="skill-tag" data-val="Machine Learning">ML</span>
+              <span class="skill-tag" data-val="HTML/CSS">HTML/CSS</span>
+              <span class="skill-tag" data-val="Linux">Linux</span>
+            </div>
+            <div class="input-group input-group-sm">
+              <input type="text" id="anCompCustom" class="form-control" placeholder="Autre compétence…" />
+              <button class="btn btn-outline-secondary" id="btnAddAnComp" type="button"><i class="bi bi-plus"></i></button>
             </div>
           </div>
         </div>
@@ -146,77 +137,139 @@
   <script>
     if (!localStorage.getItem('access_token')) window.location.href = '/login';
 
-    function authHeaders() {
-      return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}` };
+    const authH = () => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    });
+
+    function escHtml(s) {
+      return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Sidebar
-    document.getElementById('hamburgerBtn').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
-    document.getElementById('sidebarOverlay').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
-    document.getElementById('logoutBtn').addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = '/login'; });
+    function showToast(msg, type='info') {
+      const t = document.createElement('div');
+      t.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
+      t.style.cssText = 'z-index:9999;min-width:260px;border-radius:12px;font-size:0.88rem';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
 
-    // Tags compétences
-    document.querySelectorAll('#anCompTags .skill-tag').forEach(t => t.addEventListener('click', () => t.classList.toggle('active')));
+    document.getElementById('hamburgerBtn').addEventListener('click', () =>
+      document.getElementById('sidebar').classList.toggle('open'));
+    document.getElementById('sidebarOverlay').addEventListener('click', () =>
+      document.getElementById('sidebar').classList.remove('open'));
+    document.getElementById('logoutBtn').addEventListener('click', e => {
+      e.preventDefault(); localStorage.clear(); window.location.href = '/login';
+    });
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // CHARGER LES ANNONCES → GET /annonces/
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    async function loadAnnonces() {
-      const res  = await fetch('/annonces/', { headers: authHeaders() });
-      const list = await res.json();
-      const grid = document.getElementById('annoncesGrid');
+    // Tags compétences dans le modal
+    document.querySelectorAll('#anCompTags .skill-tag').forEach(t =>
+      t.addEventListener('click', () => t.classList.toggle('active')));
 
-      if (!list.length) {
-        grid.innerHTML = '<p class="text-center text-muted py-5">Aucune annonce active pour le moment.</p>';
-        return;
+    // Ajouter un tag personnalisé
+    document.getElementById('btnAddAnComp').addEventListener('click', () => {
+      const val = document.getElementById('anCompCustom').value.trim();
+      if (!val) return;
+      const container = document.getElementById('anCompTags');
+      const existing  = [...container.querySelectorAll('.skill-tag')]
+        .find(t => t.dataset.val.toLowerCase() === val.toLowerCase());
+      if (existing) { existing.classList.add('active'); }
+      else {
+        const span = document.createElement('span');
+        span.className = 'skill-tag active';
+        span.dataset.val = val;
+        span.textContent = val;
+        span.addEventListener('click', () => span.classList.toggle('active'));
+        container.appendChild(span);
       }
+      document.getElementById('anCompCustom').value = '';
+    });
+    document.getElementById('anCompCustom').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btnAddAnComp').click(); }
+    });
 
-      const me = JSON.parse(localStorage.getItem('user') || '{}');
-      grid.innerHTML = list.map(a => `
-    <div class="col-md-6 col-lg-4">
-      <div class="card h-100 shadow-sm border-0" style="border-radius:14px;border-left:4px solid ${a.type_annonce==='OFFRE'?'#7c3aed':'#f59e0b'} !important;">
-        <div class="card-body d-flex flex-column">
-          <div class="d-flex justify-content-between mb-2">
-            <span class="badge" style="background:${a.type_annonce==='OFFRE'?'#ede9fe':'#fef3c7'};color:${a.type_annonce==='OFFRE'?'#7c3aed':'#d97706'};">${a.type_annonce}</span>
-              <small class="text-muted">${new Date(a.date_creation).toLocaleDateString('fr-FR')}</small>
-          </div>
-          <h6 class="fw-700 mb-1">${a.titre}</h6>
-          <p class="text-muted mb-2" style="font-size:0.82rem;">${a.description}</p>
-          <div class="d-flex flex-wrap gap-1 mb-3">
-          ${a.competences.map(c => `<span class="badge bg-light text-secondary" style="font-size:0.72rem;">${c}</span>`).join('')}
-          </div>
-          <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-2">
-            <div style="width:30px;height:30px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7c3aed;font-size:0.75rem;">
-              ${a.auteur.prenom[0]}${a.auteur.nom[0]}
+    // Réinitialiser modal à la fermeture
+    document.getElementById('modalAnnonce').addEventListener('hidden.bs.modal', () => {
+      document.getElementById('anTitre').value = '';
+      document.getElementById('anDesc').value  = '';
+      document.getElementById('anType').value  = 'OFFRE';
+      document.getElementById('modalAlert').classList.add('d-none');
+      document.querySelectorAll('#anCompTags .skill-tag').forEach(t => t.classList.remove('active'));
+    });
+
+    // ── Charger les annonces ───────────────────────────────
+    let currentUserId = null;
+
+    fetch('/users/me', { headers: authH() }).then(r => r.json()).then(u => {
+      currentUserId = u.id_user;
+      localStorage.setItem('user', JSON.stringify(u));
+      const sa  = document.getElementById('sidebarAvatar');
+      const ini = ((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
+      if (u.photo) sa.innerHTML = `<img src="${u.photo}" alt="avatar">`;
+      else sa.textContent = ini;
+      document.getElementById('sidebarName').textContent = `${u.prenom} ${u.nom}`;
+      document.getElementById('sidebarRole').textContent = `${u.niveau} – ${u.filiere}`;
+    });
+
+    async function loadAnnonces() {
+      try {
+        const res  = await fetch('/annonces/', { headers: authH() });
+        const list = await res.json();
+        const grid = document.getElementById('annoncesGrid');
+
+        if (!list.length) {
+          grid.innerHTML = '<p class="text-center text-muted py-5">Aucune annonce active pour le moment.</p>';
+          return;
+        }
+
+        grid.innerHTML = list.map(a => `
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm" style="border-radius:14px;border-left:4px solid ${a.type_annonce==='OFFRE'?'#7c3aed':'#f59e0b'} !important">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="badge" style="background:${a.type_annonce==='OFFRE'?'#ede9fe':'#fef3c7'};
+                    color:${a.type_annonce==='OFFRE'?'#7c3aed':'#d97706'}">${a.type_annonce}</span>
+                  <small class="text-muted">${new Date(a.date_creation).toLocaleDateString('fr-FR')}</small>
+                </div>
+                <h6 class="fw-bold mb-1" style="font-size:0.9rem">${escHtml(a.titre)}</h6>
+                <p class="text-muted mb-2" style="font-size:0.82rem;flex-grow:1">${escHtml(a.description.slice(0,100))}${a.description.length>100?'…':''}</p>
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                  ${(a.competences||[]).map(c => `<span class="badge bg-light text-secondary" style="font-size:0.72rem">${escHtml(c)}</span>`).join('')}
+                </div>
+                <div class="border-top pt-2 d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="author-avatar">
+                      ${a.auteur.photo ? `<img src="${a.auteur.photo}" alt="avatar">` : `${escHtml((a.auteur.prenom||'?')[0])}${escHtml((a.auteur.nom||'?')[0])}`}
+                    </div>
+                    <div>
+                      <div style="font-size:0.78rem;font-weight:600">${escHtml(a.auteur.prenom)} ${escHtml(a.auteur.nom)}</div>
+                      <div style="font-size:0.7rem;color:#6b7280">${escHtml(a.auteur.niveau)} – ${escHtml(a.auteur.filiere)}</div>
+                    </div>
+                  </div>
+                  ${a.auteur.id_user !== currentUserId ? `
+                    <button class="btn btn-sm btn-mentorlink" onclick="demanderMatch(${a.auteur.id_user},'${escHtml(a.auteur.prenom)} ${escHtml(a.auteur.nom)}')"
+                      style="font-size:0.75rem;padding:.3rem .75rem;border-radius:999px">
+                      <i class="bi bi-person-plus me-1"></i>Matcher
+                    </button>` :
+                    `<span class="badge bg-secondary" style="font-size:0.7rem">Mon annonce</span>`}
+                </div>
+              </div>
             </div>
-            <div>
-              <div style="font-size:0.78rem;font-weight:600;">${a.auteur.prenom} ${a.auteur.nom}</div>
-              <div style="font-size:0.7rem;color:#6b7280;">${a.auteur.niveau} – ${a.auteur.filiere}</div>
-            </div>
-          </div>
-          ${a.auteur.id_user !== me.id_user ? `
-          <button class="btn btn-sm btn-mentorlink" onclick="demanderMatch(${a.auteur.id_user}, '${a.auteur.prenom} ${a.auteur.nom}')"
-            style="font-size:0.75rem;padding:0.3rem 0.75rem;border-radius:999px;">
-            <i class="bi bi-person-plus me-1"></i>Matcher
-          </button>` : `<span class="badge bg-secondary" style="font-size:0.7rem;">Mon annonce</span>`}
-          </div>
-        </div>
-      </div>
-    </div>
-`).join('');
+          </div>`).join('');
+      } catch(e) {
+        document.getElementById('annoncesGrid').innerHTML =
+          '<p class="text-center text-muted py-5">Erreur lors du chargement des annonces.</p>';
+      }
     }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // CRÉER UNE ANNONCE → POST /annonces/
-    // Corps JSON : { titre, description, type_annonce, format, competences[] }
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // ── Créer une annonce ──────────────────────────────────
     document.getElementById('btnCreateAnnonce').addEventListener('click', async () => {
-      const titre = document.getElementById('anTitre').value.trim();
-      const desc  = document.getElementById('anDesc').value.trim();
-      const type  = document.getElementById('anType').value;
-      const fmt   = document.getElementById('anFormat').value;
-      const comps = [...document.querySelectorAll('#anCompTags .skill-tag.active')].map(t => t.dataset.val);
+      const titre   = document.getElementById('anTitre').value.trim();
+      const desc    = document.getElementById('anDesc').value.trim();
+      const type    = document.getElementById('anType').value;
+      const fmt     = document.getElementById('anFormat').value;
+      const comps   = [...document.querySelectorAll('#anCompTags .skill-tag.active')].map(t => t.dataset.val);
       const alertEl = document.getElementById('modalAlert');
 
       if (!titre || !desc) {
@@ -229,50 +282,47 @@
       document.getElementById('btnAnnonceText').classList.add('d-none');
       document.getElementById('btnAnnonceSpinner').classList.remove('d-none');
 
-      const res = await fetch('/annonces/', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ titre, description: desc, type_annonce: type, format: fmt, competences: comps })
-      });
-      const data = await res.json();
-
-      document.getElementById('btnAnnonceText').classList.remove('d-none');
-      document.getElementById('btnAnnonceSpinner').classList.add('d-none');
-
-      if (res.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('modalAnnonce')).hide();
-        loadAnnonces();
-      } else {
+      try {
+        const res = await fetch('/annonces/', {
+          method: 'POST', headers: authH(),
+          body: JSON.stringify({ titre, description: desc, type_annonce: type, format: fmt, competences: comps })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          bootstrap.Modal.getInstance(document.getElementById('modalAnnonce')).hide();
+          showToast('✅ Annonce publiée !', 'success');
+          loadAnnonces();
+        } else {
+          alertEl.className = 'alert alert-danger';
+          alertEl.textContent = data.error || 'Erreur lors de la publication.';
+          alertEl.classList.remove('d-none');
+        }
+      } catch(e) {
         alertEl.className = 'alert alert-danger';
-        alertEl.textContent = data.error || 'Erreur lors de la publication.';
+        alertEl.textContent = 'Erreur réseau.';
         alertEl.classList.remove('d-none');
+      } finally {
+        document.getElementById('btnAnnonceText').classList.remove('d-none');
+        document.getElementById('btnAnnonceSpinner').classList.add('d-none');
       }
     });
 
-    // Charger l'utilisateur pour la sidebar
-    fetch('/users/me', { headers: authHeaders() }).then(r => r.json()).then(u => {
-    localStorage.setItem('user', JSON.stringify(u));  // ← seule ligne ajoutée
-      const _ini = ((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
-      const _sa = document.getElementById('sidebarAvatar');
-      if (u.photo) { _sa.innerHTML = `<img src="${u.photo}" alt="avatar">`; }
-      else { _sa.textContent = _ini; }
-      document.getElementById('sidebarName').textContent = `${u.prenom} ${u.nom}`;
-      document.getElementById('sidebarRole').textContent = `${u.niveau} – ${u.filiere}`;
-    });
-
-    loadAnnonces();
+    // ── Demander un match depuis une annonce ───────────────
     async function demanderMatch(mentorId, nom) {
       if (!confirm(`Envoyer une demande de mentoring à ${nom} ?`)) return;
-      const res = await fetch('/matching/', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ mentor_id: mentorId })
-      });
-      const data = await res.json();
-      if (res.ok) alert(`✅ Demande envoyée à ${nom} !`);
-      else if (res.status === 409) alert('Une demande existe déjà avec cet utilisateur.');
-      else alert(data.error || 'Erreur.');
+      try {
+        const res  = await fetch('/matching/', {
+          method: 'POST', headers: authH(),
+          body: JSON.stringify({ mentor_id: mentorId })
+        });
+        const data = await res.json();
+        if (res.ok) showToast(`✅ Demande envoyée à ${nom} !`, 'success');
+        else if (res.status === 409) showToast('Une demande existe déjà avec cet utilisateur.', 'warning');
+        else showToast(data.error || 'Erreur.', 'danger');
+      } catch(e) { showToast('Erreur réseau.', 'danger'); }
     }
+
+    loadAnnonces();
   </script>
 </body>
 </html>
