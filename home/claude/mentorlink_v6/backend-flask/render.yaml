@@ -1,0 +1,31 @@
+# render.yaml — Configuration complète pour Render.com
+# Placer ce fichier à la RACINE du dépôt GitHub (ou dans backend-flask/)
+
+services:
+  # ── Service Web Flask ─────────────────────────────────────
+  - type: web
+    name: ifri-mentorlink
+    runtime: python
+    rootDir: backend-flask          # dossier racine du service (si le repo contient d'autres dossiers)
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --config gunicorn.conf.py
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mentorlink-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true          # Render génère automatiquement une clé sécurisée
+      - key: FLASK_DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+    healthCheckPath: /login
+    autoDeploy: true
+
+  # ── Base de données PostgreSQL ────────────────────────────
+databases:
+  - name: mentorlink-db
+    databaseName: mentorlink
+    user: mentorlink_user
+    plan: free                       # Plan gratuit Render (90 jours puis payant)
