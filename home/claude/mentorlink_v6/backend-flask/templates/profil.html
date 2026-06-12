@@ -42,6 +42,9 @@
     .skill-tag{display:inline-flex;align-items:center;gap:5px;padding:.4em .85em;border-radius:999px;font-size:.78rem;cursor:pointer;user-select:none;transition:all .15s;border:2px solid #7c3aed;color:#7c3aed;background:#fff}
     .skill-tag.active{background:#7c3aed;color:#fff}
     .skill-tag:hover:not(.active){background:#ede9f8}
+    .skill-tag.lac-tag{border-color:#dc2626;color:#dc2626}
+    .skill-tag.lac-tag.active{background:#dc2626;color:#fff}
+    .skill-tag.lac-tag:hover:not(.active){background:#fef2f2}
     @media(max-width:991.98px){
       .sidebar{transform:translateX(-252px)}
       .sidebar.open{transform:translateX(0);box-shadow:0 8px 32px rgba(79,46,140,.2)}
@@ -226,6 +229,19 @@
             <span class="skill-tag" data-val="C/C++">C/C++</span>
             <span class="skill-tag" data-val="Algorithmique">Algo</span>
           </div>
+          <p style="font-size:.8rem;color:#6b7280;margin-bottom:.4rem;margin-top:.6rem">Suggestions lacunes :</p>
+          <div class="d-flex flex-wrap gap-1" id="suggestLacs">
+            <span class="skill-tag lac-tag" data-val="Python">Python</span>
+            <span class="skill-tag lac-tag" data-val="JavaScript">JavaScript</span>
+            <span class="skill-tag lac-tag" data-val="SQL">SQL</span>
+            <span class="skill-tag lac-tag" data-val="HTML/CSS">HTML/CSS</span>
+            <span class="skill-tag lac-tag" data-val="Réseaux">Réseaux</span>
+            <span class="skill-tag lac-tag" data-val="Machine Learning">ML</span>
+            <span class="skill-tag lac-tag" data-val="Linux">Linux</span>
+            <span class="skill-tag lac-tag" data-val="Java">Java</span>
+            <span class="skill-tag lac-tag" data-val="C/C++">C/C++</span>
+            <span class="skill-tag lac-tag" data-val="Algorithmique">Algo</span>
+          </div>
         </div>
 
         <div class="mt-2">
@@ -393,24 +409,44 @@ function loadProfil() {
 document.getElementById('btnSaveProfil').addEventListener('click', function() {
   document.getElementById('saveText').classList.add('d-none');
   document.getElementById('saveSpinner').classList.remove('d-none');
+
+  var nom      = document.getElementById('editNom').value.trim();
+  var prenom   = document.getElementById('editPrenom').value.trim();
+  var tel      = document.getElementById('editTel').value.trim();
+  var bio      = document.getElementById('editBio').value.trim();
+  var filiere  = document.getElementById('editFiliere').value;
+  var niveau   = document.getElementById('editNiveau').value;
+
+  if (!nom || !prenom) {
+    document.getElementById('saveText').classList.remove('d-none');
+    document.getElementById('saveSpinner').classList.add('d-none');
+    showAlert('Nom et prénom sont obligatoires.', 'danger');
+    return;
+  }
+
+  var payload = { nom: nom, prenom: prenom, bio: bio, filiere: filiere, niveau: niveau };
+  if (tel) payload.telephone = tel; // n'envoyer que si non vide
+
   fetch('/users/me', {
     method: 'PUT',
     headers: authHeaders(),
-    body: JSON.stringify({
-      nom:       document.getElementById('editNom').value.trim(),
-      prenom:    document.getElementById('editPrenom').value.trim(),
-      telephone: document.getElementById('editTel').value.trim(),
-      bio:       document.getElementById('editBio').value.trim(),
-      filiere:   document.getElementById('editFiliere').value,
-      niveau:    document.getElementById('editNiveau').value
-    })
+    body: JSON.stringify(payload)
   })
   .then(function(r) { return r.json().then(function(d) { return {ok:r.ok, d:d}; }); })
   .then(function(res) {
     document.getElementById('saveText').classList.remove('d-none');
     document.getElementById('saveSpinner').classList.add('d-none');
-    if (res.ok) { showAlert('✅ Profil mis à jour !', 'success'); loadProfil(); }
-    else showAlert(res.d.error || 'Erreur.', 'danger');
+    if (res.ok) {
+      showAlert('✅ Profil mis à jour avec succès !', 'success');
+      loadProfil();
+    } else {
+      showAlert('Erreur : ' + (res.d.error || 'Impossible de sauvegarder.'), 'danger');
+    }
+  })
+  .catch(function(e) {
+    document.getElementById('saveText').classList.remove('d-none');
+    document.getElementById('saveSpinner').classList.add('d-none');
+    showAlert('Erreur réseau : ' + e.message, 'danger');
   });
 });
 
@@ -470,11 +506,18 @@ document.getElementById('newLacune').addEventListener('keydown', function(e) {
   if (e.key==='Enter') { e.preventDefault(); addSkill('/users/me/lacunes','newLacune'); }
 });
 
-// Tags suggestions cliquables
+// Tags suggestions compétences cliquables
 document.querySelectorAll('#suggestComps .skill-tag').forEach(function(tag) {
   tag.addEventListener('click', function() {
     document.getElementById('newComp').value = tag.dataset.val;
     addSkill('/users/me/competences', 'newComp');
+  });
+});
+// Tags suggestions lacunes cliquables
+document.querySelectorAll('#suggestLacs .skill-tag').forEach(function(tag) {
+  tag.addEventListener('click', function() {
+    document.getElementById('newLacune').value = tag.dataset.val;
+    addSkill('/users/me/lacunes', 'newLacune');
   });
 });
 
