@@ -8,29 +8,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/profil.css') }}" />
-  <style>
-    .profile-avatar{width:90px;height:90px;border-radius:50%;border:4px solid #fff;
-      background:linear-gradient(135deg,#ede9f8,#f5f2fd);display:flex;align-items:center;
-      justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;
-      color:#7c3aed;overflow:hidden;box-shadow:0 2px 12px rgba(79,46,140,.15);
-      margin-top:-45px;cursor:pointer;position:relative}
-    .profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-    .profile-avatar:hover::after{content:'\f4f3';font-family:'Bootstrap-Icons';
-      position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;
-      align-items:center;justify-content:center;font-size:1.5rem;color:#fff;border-radius:50%}
-    .skill-pill{display:inline-flex;align-items:center;gap:4px;padding:.32em .75em;
-      border-radius:999px;font-size:.78rem;font-weight:600;margin:2px}
-    .skill-pill button{background:none;border:none;cursor:pointer;padding:0;
-      font-size:.8rem;line-height:1;opacity:.7}
-    .skill-pill button:hover{opacity:1}
-    .comp-pill{background:#d1fae5;color:#065f46}
-    .lac-pill{background:#fee2e2;color:#991b1b}
-    #photoFileInput{display:none}
-  </style>
 </head>
 <body>
 
-<input type="file" id="photoFileInput" accept="image/jpeg,image/png,image/webp,image/gif" />
+<input type="file" id="photoFileInput" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" />
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -59,7 +40,7 @@
     <a href="/profil" class="sidebar-user">
       <div class="sidebar-avatar" id="sidebarAvatar">?</div>
       <div>
-        <div class="sidebar-user-name" id="sidebarName">…</div>
+        <div class="sidebar-user-name" id="sidebarName">Chargement…</div>
         <div class="sidebar-user-role" id="sidebarRole"></div>
       </div>
     </a>
@@ -77,35 +58,36 @@
 
 <!-- CONTENU -->
 <main class="main-content">
+
+  <!-- Alerte globale -->
   <div id="alertMsg" class="d-none mb-3"></div>
 
-  <!-- Bannière profil -->
+  <!-- Bannière hero -->
   <div class="profile-hero mb-4">
     <div class="profile-banner"></div>
     <div class="profile-identity">
       <div class="d-flex align-items-flex-end gap-3">
         <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profileAvatar" title="Cliquer pour changer la photo">
-            <span id="profileInitials">?</span>
+          <div class="profile-avatar" id="profileAvatar" title="Cliquer pour changer la photo"
+               onclick="document.getElementById('photoFileInput').click()"
+               style="cursor:pointer">
+            <span id="profileInitials">…</span>
           </div>
         </div>
-        <div style="padding-top:12px">
-          <div class="profile-name" id="profileName">…</div>
-          <div class="profile-role" id="profileEmail"></div>
-          <span class="profile-badge">
-            <i class="bi bi-mortarboard-fill"></i>
-            <span id="profileBadge"></span>
-          </span>
+        <div style="padding-top:10px">
+          <div class="profile-name"  id="profileName">Chargement…</div>
+          <div class="profile-role"  id="profileEmail"></div>
+          <span class="profile-badge"><i class="bi bi-mortarboard-fill"></i> <span id="profileBadge"></span></span>
         </div>
       </div>
       <div class="d-flex gap-4 text-center pb-2">
         <div>
-          <div class="fw-bold fs-5" id="cntComp">0</div>
-          <div style="font-size:.72rem;color:#7c7495">Compétences</div>
+          <div class="fw-bold fs-5" id="cntComp">–</div>
+          <div style="font-size:.72rem;color:#7c7495">Points forts</div>
         </div>
         <div>
-          <div class="fw-bold fs-5" id="cntLac">0</div>
-          <div style="font-size:.72rem;color:#7c7495">Lacunes</div>
+          <div class="fw-bold fs-5" id="cntLac">–</div>
+          <div style="font-size:.72rem;color:#7c7495">Points faibles</div>
         </div>
       </div>
     </div>
@@ -113,7 +95,7 @@
 
   <div class="row g-4">
 
-    <!-- Édition profil -->
+    <!-- Formulaire modification -->
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-4" style="border-radius:20px">
         <h6 class="fw-bold mb-3">
@@ -122,15 +104,15 @@
         <div class="row g-3">
           <div class="col-sm-6">
             <label class="form-label fw-medium" style="font-size:.85rem">Nom</label>
-            <input type="text" id="editNom" class="form-control" />
+            <input type="text" id="editNom" class="form-control" placeholder="Chargement…" />
           </div>
           <div class="col-sm-6">
             <label class="form-label fw-medium" style="font-size:.85rem">Prénom</label>
-            <input type="text" id="editPrenom" class="form-control" />
+            <input type="text" id="editPrenom" class="form-control" placeholder="Chargement…" />
           </div>
           <div class="col-sm-6">
             <label class="form-label fw-medium" style="font-size:.85rem">Téléphone</label>
-            <input type="tel" id="editTel" class="form-control" />
+            <input type="tel" id="editTel" class="form-control" placeholder="Chargement…" />
           </div>
           <div class="col-sm-6">
             <label class="form-label fw-medium" style="font-size:.85rem">Filière</label>
@@ -162,87 +144,85 @@
             <span id="saveText"><i class="bi bi-check2 me-1"></i>Enregistrer</span>
             <span id="saveSpinner" class="d-none spinner-border spinner-border-sm"></span>
           </button>
-          <button class="btn btn-outline-secondary" id="btnChangePhoto">
+          <button class="btn btn-outline-secondary" onclick="document.getElementById('photoFileInput').click()">
             <i class="bi bi-camera me-1"></i>Changer la photo
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Compétences & Lacunes -->
+    <!-- Points forts & faibles -->
     <div class="col-lg-6">
       <div class="card border-0 shadow-sm p-4" style="border-radius:20px">
         <h6 class="fw-bold mb-3">
-          <i class="bi bi-stars me-2" style="color:#7c3aed"></i>Points forts & Points faibles
+          <i class="bi bi-stars me-2" style="color:#7c3aed"></i>Points forts &amp; Points faibles
         </h6>
 
-        <!-- Ajouter compétence -->
         <label class="form-label fw-medium" style="font-size:.85rem">
           <i class="bi bi-star-fill text-success me-1"></i>Ajouter un point fort
         </label>
-        <div class="input-group mb-1">
-          <input type="text" id="newComp" class="form-control"
-            placeholder="Ex : Python, SQL, Réseaux…" />
+        <div class="input-group mb-2">
+          <input type="text" id="newComp" class="form-control" placeholder="Ex : Python, SQL…" />
           <button class="btn btn-outline-success" id="btnAddComp" type="button">
             <i class="bi bi-plus-lg"></i>
           </button>
         </div>
-        <div class="d-flex flex-wrap gap-1 mb-3" id="quickComps">
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','Python')">Python</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','JavaScript')">JavaScript</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','SQL')">SQL</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','Réseaux')">Réseaux</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','Machine Learning')">ML</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','HTML/CSS')">HTML/CSS</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','Linux')">Linux</span>
-          <span class="badge" style="cursor:pointer;background:#e0f2fe;color:#0369a1" onclick="quickAdd('comp','Java')">Java</span>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Python')">Python</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','JavaScript')">JavaScript</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','SQL')">SQL</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Réseaux')">Réseaux</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Machine Learning')">ML</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','HTML/CSS')">HTML/CSS</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Linux')">Linux</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Java')">Java</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','C/C++')">C/C++</span>
+          <span class="badge qbadge-comp" onclick="quickAdd('comp','Algorithmique')">Algo</span>
         </div>
 
-        <!-- Ajouter lacune -->
         <label class="form-label fw-medium" style="font-size:.85rem">
           <i class="bi bi-lightning-fill text-danger me-1"></i>Ajouter un point faible
         </label>
-        <div class="input-group mb-1">
-          <input type="text" id="newLac" class="form-control"
-            placeholder="Ex : Machine Learning…" />
+        <div class="input-group mb-2">
+          <input type="text" id="newLac" class="form-control" placeholder="Ex : Machine Learning…" />
           <button class="btn btn-outline-danger" id="btnAddLac" type="button">
             <i class="bi bi-plus-lg"></i>
           </button>
         </div>
-        <div class="d-flex flex-wrap gap-1 mb-3" id="quickLacs">
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Python')">Python</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','JavaScript')">JavaScript</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','SQL')">SQL</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Algorithmique')">Algo</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Machine Learning')">ML</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Réseaux')">Réseaux</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Linux')">Linux</span>
-          <span class="badge" style="cursor:pointer;background:#fef2f2;color:#dc2626" onclick="quickAdd('lac','Java')">Java</span>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Python')">Python</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','JavaScript')">JavaScript</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','SQL')">SQL</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Algorithmique')">Algo</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Machine Learning')">ML</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Réseaux')">Réseaux</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Linux')">Linux</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','Java')">Java</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','C/C++')">C/C++</span>
+          <span class="badge qbadge-lac" onclick="quickAdd('lac','HTML/CSS')">HTML/CSS</span>
         </div>
 
-        <!-- Liste compétences -->
         <p class="fw-semibold mb-1" style="font-size:.82rem;color:#374151">
           <i class="bi bi-check-circle-fill text-success me-1"></i>Mes points forts
         </p>
         <div id="listComp" class="d-flex flex-wrap gap-1 mb-3 p-2"
-          style="min-height:38px;background:#f8f9fa;border-radius:10px;border:1px dashed #d1d5db">
-          <span class="text-muted" style="font-size:.8rem">Aucun point fort. Ajoutez-en ci-dessus.</span>
+             style="min-height:40px;background:#f8faf8;border-radius:10px;border:1px dashed #a7f3d0">
+          <span class="text-muted" style="font-size:.8rem">Aucun pour l'instant.</span>
         </div>
 
-        <!-- Liste lacunes -->
         <p class="fw-semibold mb-1" style="font-size:.82rem;color:#374151">
           <i class="bi bi-exclamation-circle-fill text-danger me-1"></i>Mes points faibles
         </p>
         <div id="listLac" class="d-flex flex-wrap gap-1 p-2"
-          style="min-height:38px;background:#f8f9fa;border-radius:10px;border:1px dashed #d1d5db">
-          <span class="text-muted" style="font-size:.8rem">Aucun point faible. Ajoutez-en ci-dessus.</span>
+             style="min-height:40px;background:#fdf8f8;border-radius:10px;border:1px dashed #fca5a5">
+          <span class="text-muted" style="font-size:.8rem">Aucun pour l'instant.</span>
         </div>
       </div>
     </div>
 
   </div>
 
-  <!-- Planning résumé -->
+  <!-- Disponibilités -->
   <div class="card border-0 shadow-sm p-4 mt-4" style="border-radius:20px">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h6 class="fw-bold mb-0">
@@ -254,8 +234,7 @@
     </div>
     <div id="dispoSummary">
       <span class="text-muted" style="font-size:.85rem">
-        Aucune disponibilité.
-        <a href="/planning" style="color:#7c3aed">Ajouter →</a>
+        Aucune disponibilité. <a href="/planning" style="color:#7c3aed">Ajouter →</a>
       </span>
     </div>
   </div>
@@ -264,243 +243,294 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ── Auth guard ─────────────────────────────────────────────
-if (!localStorage.getItem('access_token')) window.location.href = '/login';
+// ── Auth guard
+const _tok = localStorage.getItem('access_token');
+if (!_tok) window.location.href = '/login';
 
 const authH = () => ({
   'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+  'Authorization': 'Bearer ' + localStorage.getItem('access_token')
 });
 
-// ── Utilitaires ────────────────────────────────────────────
-function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
-function showAlert(msg, type='success') {
+function showMsg(msg, type) {
   const el = document.getElementById('alertMsg');
-  el.className = `alert alert-${type}`;
+  el.className = 'alert alert-' + (type||'success');
   el.textContent = msg;
   el.classList.remove('d-none');
-  setTimeout(() => el.classList.add('d-none'), 4000);
+  setTimeout(function(){ el.classList.add('d-none'); }, 4000);
 }
 
-function renderAvatar(el, photo, initials) {
-  if (photo) el.innerHTML = `<img src="${photo}" alt="avatar">`;
-  else el.innerHTML = `<span>${initials}</span>`;
-}
-
-// ── Sidebar ────────────────────────────────────────────────
-document.getElementById('hamburgerBtn').addEventListener('click', () =>
-  document.getElementById('sidebar').classList.toggle('open'));
-document.getElementById('sidebarOverlay').addEventListener('click', () =>
-  document.getElementById('sidebar').classList.remove('open'));
-document.getElementById('logoutBtn').addEventListener('click', e => {
-  e.preventDefault(); localStorage.clear(); window.location.href = '/login';
-});
-
-// ── Charger le profil ──────────────────────────────────────
-async function loadProfil() {
-  try {
-    const res = await fetch('/users/me', { headers: authH() });
-    if (!res.ok) { localStorage.clear(); window.location.href = '/login'; return; }
-    const u = await res.json();
-
-    // Avatar
-    const ini = ((u.prenom||'?')[0] + (u.nom||'?')[0]).toUpperCase();
-    renderAvatar(document.getElementById('profileAvatar'), u.photo, ini);
-    renderAvatar(document.getElementById('sidebarAvatar'),  u.photo, ini);
-    document.getElementById('profileInitials').textContent = '';
-
-    // Infos
-    document.getElementById('profileName').textContent  = `${u.prenom} ${u.nom}`;
-    document.getElementById('profileEmail').textContent = u.email;
-    document.getElementById('profileBadge').textContent = `${u.niveau} – ${u.filiere}`;
-    document.getElementById('sidebarName').textContent  = `${u.prenom} ${u.nom}`;
-    document.getElementById('sidebarRole').textContent  = `${u.niveau} – ${u.filiere}`;
-
-    // Formulaire
-    document.getElementById('editNom').value     = u.nom       || '';
-    document.getElementById('editPrenom').value  = u.prenom    || '';
-    document.getElementById('editTel').value     = u.telephone || '';
-    document.getElementById('editBio').value     = u.bio       || '';
-    document.getElementById('editFiliere').value = u.filiere   || 'GL';
-    document.getElementById('editNiveau').value  = u.niveau    || 'L1';
-
-    // Compteurs
-    const comps = u.competences || [];
-    const lacs  = u.lacunes     || [];
-    document.getElementById('cntComp').textContent = comps.length;
-    document.getElementById('cntLac').textContent  = lacs.length;
-
-    // ── Liste compétences ──────────────────────────────────
-    document.getElementById('listComp').innerHTML = comps.length
-      ? comps.map(c => `
-          <span class="skill-pill comp-pill">
-            ${escHtml(c.nom_competence)}
-            <button onclick="rmSkill('/users/me/competences/${c.id_competence}')" title="Supprimer">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </span>`).join('')
-      : '<span class="text-muted" style="font-size:.8rem">Aucun point fort. Ajoutez-en ci-dessus.</span>';
-
-    // ── Liste lacunes ──────────────────────────────────────
-    document.getElementById('listLac').innerHTML = lacs.length
-      ? lacs.map(c => `
-          <span class="skill-pill lac-pill">
-            ${escHtml(c.nom_competence)}
-            <button onclick="rmSkill('/users/me/lacunes/${c.id_competence}')" title="Supprimer">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </span>`).join('')
-      : '<span class="text-muted" style="font-size:.8rem">Aucun point faible. Ajoutez-en ci-dessus.</span>';
-
-    // ── Disponibilités ─────────────────────────────────────
-    const dispos  = u.disponibilites || [];
-    const dispoEl = document.getElementById('dispoSummary');
-    if (!dispos.length) {
-      dispoEl.innerHTML = '<span class="text-muted" style="font-size:.85rem">Aucune disponibilité. <a href="/planning" style="color:#7c3aed">Ajouter →</a></span>';
-    } else {
-      const grouped = {};
-      dispos.forEach(d => { (grouped[d.jour] = grouped[d.jour]||[]).push(`${d.debut}–${d.fin}`); });
-      dispoEl.innerHTML = Object.entries(grouped).map(([jour, crenaux]) =>
-        `<span class="badge me-1 mb-1" style="background:#ede9f8;color:#7c3aed;font-size:.78rem;border-radius:8px;padding:.35rem .7rem">
-          <i class="bi bi-clock me-1"></i>${jour} : ${crenaux.join(', ')}
-        </span>`
-      ).join('');
-    }
-
-  } catch(e) {
-    showAlert('Erreur de chargement du profil.', 'danger');
+function setAvatar(el, photo, ini) {
+  if (photo) {
+    el.innerHTML = '<img src="' + photo + '" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  } else {
+    el.innerHTML = '<span>' + esc(ini) + '</span>';
   }
 }
 
-// ── Sauvegarder le profil ──────────────────────────────────
-document.getElementById('btnSave').addEventListener('click', async () => {
+// Sidebar
+document.getElementById('hamburgerBtn').addEventListener('click', function() {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+document.getElementById('sidebarOverlay').addEventListener('click', function() {
+  document.getElementById('sidebar').classList.remove('open');
+});
+document.getElementById('logoutBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  localStorage.clear();
+  window.location.href = '/login';
+});
+
+// ── Charger le profil
+function loadProfil() {
+  fetch('/users/me', { headers: authH() })
+    .then(function(r) {
+      if (r.status === 401) {
+        localStorage.clear();
+        window.location.href = '/login';
+        return null;
+      }
+      return r.json();
+    })
+    .then(function(u) {
+      if (!u) return;
+
+      var ini = ((u.prenom||'?')[0] + (u.nom||'?')[0]).toUpperCase();
+
+      // Avatar
+      setAvatar(document.getElementById('profileAvatar'), u.photo, ini);
+      setAvatar(document.getElementById('sidebarAvatar'),  u.photo, ini);
+      document.getElementById('profileInitials').textContent = '';
+
+      // Infos profil
+      document.getElementById('profileName').textContent  = (u.prenom||'') + ' ' + (u.nom||'');
+      document.getElementById('profileEmail').textContent = u.email || '';
+      document.getElementById('profileBadge').textContent = (u.niveau||'') + ' – ' + (u.filiere||'');
+      document.getElementById('sidebarName').textContent  = (u.prenom||'') + ' ' + (u.nom||'');
+      document.getElementById('sidebarRole').textContent  = (u.niveau||'') + ' – ' + (u.filiere||'');
+
+      // Formulaire
+      document.getElementById('editNom').value     = u.nom       || '';
+      document.getElementById('editPrenom').value  = u.prenom    || '';
+      document.getElementById('editTel').value     = u.telephone || '';
+      document.getElementById('editBio').value     = u.bio       || '';
+
+      // Filière et niveau
+      var selF = document.getElementById('editFiliere');
+      var selN = document.getElementById('editNiveau');
+      for (var i=0; i<selF.options.length; i++) {
+        if (selF.options[i].value === u.filiere) { selF.selectedIndex = i; break; }
+      }
+      for (var j=0; j<selN.options.length; j++) {
+        if (selN.options[j].value === u.niveau) { selN.selectedIndex = j; break; }
+      }
+
+      // Compétences
+      var comps = u.competences || [];
+      var lacs  = u.lacunes     || [];
+      document.getElementById('cntComp').textContent = comps.length;
+      document.getElementById('cntLac').textContent  = lacs.length;
+
+      if (comps.length > 0) {
+        document.getElementById('listComp').innerHTML = comps.map(function(c) {
+          return '<span class="skill-pill comp-pill">'
+            + esc(c.nom_competence)
+            + '<button onclick="rmSkill(\'/users/me/competences/' + c.id_competence + '\')" title="Supprimer">'
+            + '<i class="bi bi-x-lg"></i></button></span>';
+        }).join('');
+      } else {
+        document.getElementById('listComp').innerHTML =
+          '<span class="text-muted" style="font-size:.8rem">Aucun point fort.</span>';
+      }
+
+      if (lacs.length > 0) {
+        document.getElementById('listLac').innerHTML = lacs.map(function(c) {
+          return '<span class="skill-pill lac-pill">'
+            + esc(c.nom_competence)
+            + '<button onclick="rmSkill(\'/users/me/lacunes/' + c.id_competence + '\')" title="Supprimer">'
+            + '<i class="bi bi-x-lg"></i></button></span>';
+        }).join('');
+      } else {
+        document.getElementById('listLac').innerHTML =
+          '<span class="text-muted" style="font-size:.8rem">Aucun point faible.</span>';
+      }
+
+      // Disponibilités
+      var dispos  = u.disponibilites || [];
+      var dispoEl = document.getElementById('dispoSummary');
+      if (dispos.length === 0) {
+        dispoEl.innerHTML = '<span class="text-muted" style="font-size:.85rem">Aucune disponibilité. <a href="/planning" style="color:#7c3aed">Ajouter →</a></span>';
+      } else {
+        var grouped = {};
+        dispos.forEach(function(d) {
+          if (!grouped[d.jour]) grouped[d.jour] = [];
+          grouped[d.jour].push(d.debut + '–' + d.fin);
+        });
+        dispoEl.innerHTML = Object.keys(grouped).map(function(jour) {
+          return '<span class="badge me-1 mb-1" style="background:#ede9f8;color:#7c3aed;font-size:.78rem;border-radius:8px;padding:.35rem .7rem">'
+            + '<i class="bi bi-clock me-1"></i>' + jour + ' : ' + grouped[jour].join(', ') + '</span>';
+        }).join('');
+      }
+    })
+    .catch(function(e) {
+      showMsg('Erreur de chargement : ' + e.message, 'danger');
+    });
+}
+
+// ── Sauvegarder le profil
+document.getElementById('btnSave').addEventListener('click', function() {
   document.getElementById('saveText').classList.add('d-none');
   document.getElementById('saveSpinner').classList.remove('d-none');
 
-  try {
-    const res = await fetch('/users/me', {
-      method: 'PUT',
-      headers: authH(),
-      body: JSON.stringify({
-        nom:       document.getElementById('editNom').value.trim(),
-        prenom:    document.getElementById('editPrenom').value.trim(),
-        telephone: document.getElementById('editTel').value.trim(),
-        bio:       document.getElementById('editBio').value.trim(),
-        filiere:   document.getElementById('editFiliere').value,
-        niveau:    document.getElementById('editNiveau').value,
-      })
-    });
-    const data = await res.json();
-    if (res.ok) { showAlert('✅ Profil mis à jour !'); loadProfil(); }
-    else showAlert(data.error || 'Erreur.', 'danger');
-  } catch(e) {
-    showAlert('Erreur réseau.', 'danger');
-  } finally {
+  fetch('/users/me', {
+    method: 'PUT',
+    headers: authH(),
+    body: JSON.stringify({
+      nom:       document.getElementById('editNom').value.trim(),
+      prenom:    document.getElementById('editPrenom').value.trim(),
+      telephone: document.getElementById('editTel').value.trim(),
+      bio:       document.getElementById('editBio').value.trim(),
+      filiere:   document.getElementById('editFiliere').value,
+      niveau:    document.getElementById('editNiveau').value
+    })
+  })
+  .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+  .then(function(res) {
     document.getElementById('saveText').classList.remove('d-none');
     document.getElementById('saveSpinner').classList.add('d-none');
-  }
+    if (res.ok) { showMsg('✅ Profil mis à jour !'); loadProfil(); }
+    else showMsg(res.data.error || 'Erreur lors de la mise à jour.', 'danger');
+  })
+  .catch(function() {
+    document.getElementById('saveText').classList.remove('d-none');
+    document.getElementById('saveSpinner').classList.add('d-none');
+    showMsg('Erreur réseau.', 'danger');
+  });
 });
 
-// ── Photo de profil ────────────────────────────────────────
-document.getElementById('profileAvatar').addEventListener('click', () =>
-  document.getElementById('photoFileInput').click());
-document.getElementById('btnChangePhoto').addEventListener('click', () =>
-  document.getElementById('photoFileInput').click());
-
-document.getElementById('photoFileInput').addEventListener('change', async e => {
-  const file = e.target.files[0];
+// ── Photo de profil
+document.getElementById('photoFileInput').addEventListener('change', function(e) {
+  var file = e.target.files[0];
   if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { showAlert('Photo trop lourde (max 3 Mo)', 'danger'); return; }
+  if (file.size > 3 * 1024 * 1024) { showMsg('Photo trop lourde (max 3 Mo)', 'danger'); return; }
 
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    const b64 = ev.target.result;
-    renderAvatar(document.getElementById('profileAvatar'), b64, '');
-    renderAvatar(document.getElementById('sidebarAvatar'),  b64, '');
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var b64 = ev.target.result;
+    setAvatar(document.getElementById('profileAvatar'), b64, '');
+    setAvatar(document.getElementById('sidebarAvatar'),  b64, '');
 
-    try {
-      const res  = await fetch('/users/me', {
-        method: 'PUT', headers: authH(),
-        body: JSON.stringify({ photo: b64 })
-      });
-      const data = await res.json();
-      if (res.ok) showAlert('✅ Photo mise à jour !');
-      else showAlert(data.error || 'Erreur upload photo.', 'danger');
-    } catch(e) { showAlert('Erreur réseau.', 'danger'); }
+    fetch('/users/me', {
+      method: 'PUT',
+      headers: authH(),
+      body: JSON.stringify({ photo: b64 })
+    })
+    .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+    .then(function(res) {
+      if (res.ok) showMsg('✅ Photo mise à jour !');
+      else showMsg(res.data.error || 'Erreur upload photo.', 'danger');
+    })
+    .catch(function() { showMsg('Erreur réseau.', 'danger'); });
   };
   reader.readAsDataURL(file);
   e.target.value = '';
 });
 
-// ── Ajouter compétence / lacune ────────────────────────────
-async function addSkill(type, nom) {
-  nom = (nom || '').trim();
+// ── Ajouter compétence / lacune
+function addSkill(type, nom) {
+  nom = (nom||'').trim();
   if (!nom) return;
+  var endpoint = type === 'comp' ? '/users/me/competences' : '/users/me/lacunes';
 
-  const endpoint = type === 'comp' ? '/users/me/competences' : '/users/me/lacunes';
-
-  try {
-    const res  = await fetch(endpoint, {
-      method: 'POST',
-      headers: authH(),
-      body: JSON.stringify({ nom_competence: nom })
-    });
-    const data = await res.json();
-
+  fetch(endpoint, {
+    method: 'POST',
+    headers: authH(),
+    body: JSON.stringify({ nom_competence: nom })
+  })
+  .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+  .then(function(res) {
     if (res.ok) {
-      showAlert(`✅ ${type === 'comp' ? 'Point fort' : 'Point faible'} "${nom}" ajouté !`);
+      showMsg('✅ "' + nom + '" ajouté !');
       loadProfil();
     } else {
-      showAlert(data.error || 'Erreur.', 'danger');
+      showMsg(res.data.error || 'Erreur.', 'danger');
     }
-  } catch(e) {
-    showAlert('Erreur réseau.', 'danger');
-  }
+  })
+  .catch(function() { showMsg('Erreur réseau.', 'danger'); });
 }
 
-// Boutons ajouter
-document.getElementById('btnAddComp').addEventListener('click', () => {
-  const val = document.getElementById('newComp').value.trim();
+document.getElementById('btnAddComp').addEventListener('click', function() {
+  var val = document.getElementById('newComp').value.trim();
   if (!val) return;
-  addSkill('comp', val);
   document.getElementById('newComp').value = '';
+  addSkill('comp', val);
 });
-document.getElementById('btnAddLac').addEventListener('click', () => {
-  const val = document.getElementById('newLac').value.trim();
+document.getElementById('btnAddLac').addEventListener('click', function() {
+  var val = document.getElementById('newLac').value.trim();
   if (!val) return;
-  addSkill('lac', val);
   document.getElementById('newLac').value = '';
+  addSkill('lac', val);
 });
-
-// Entrée clavier
-document.getElementById('newComp').addEventListener('keydown', e => {
+document.getElementById('newComp').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btnAddComp').click(); }
 });
-document.getElementById('newLac').addEventListener('keydown', e => {
+document.getElementById('newLac').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btnAddLac').click(); }
 });
 
-// Badges rapides
-function quickAdd(type, nom) {
-  addSkill(type, nom);
-}
+function quickAdd(type, nom) { addSkill(type, nom); }
 window.quickAdd = quickAdd;
 
-// ── Supprimer compétence / lacune ──────────────────────────
-async function rmSkill(endpoint) {
-  try {
-    const res = await fetch(endpoint, { method: 'DELETE', headers: authH() });
-    if (res.ok) { loadProfil(); }
-    else showAlert('Erreur lors de la suppression.', 'danger');
-  } catch(e) { showAlert('Erreur réseau.', 'danger'); }
+// ── Supprimer
+function rmSkill(endpoint) {
+  fetch(endpoint, { method: 'DELETE', headers: authH() })
+    .then(function(r) {
+      if (r.ok) loadProfil();
+      else showMsg('Erreur lors de la suppression.', 'danger');
+    })
+    .catch(function() { showMsg('Erreur réseau.', 'danger'); });
 }
 window.rmSkill = rmSkill;
 
-// ── Initialisation ─────────────────────────────────────────
+// ── Démarrage
 loadProfil();
 </script>
+
+<style>
+.qbadge-comp { background:#e0f2fe; color:#0369a1; cursor:pointer; font-size:.75rem; }
+.qbadge-comp:hover { background:#bae6fd; }
+.qbadge-lac  { background:#fef2f2; color:#dc2626; cursor:pointer; font-size:.75rem; }
+.qbadge-lac:hover  { background:#fecaca; }
+.profile-avatar {
+  width:88px; height:88px; border-radius:50%;
+  border:4px solid #fff;
+  background:linear-gradient(135deg,#ede9f8,#f5f2fd);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:800; font-size:1.9rem;
+  color:#7c3aed; overflow:hidden;
+  box-shadow:0 2px 12px rgba(79,46,140,.15);
+  margin-top:-44px;
+}
+.profile-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.skill-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:.32em .75em; border-radius:999px; font-size:.78rem; font-weight:600; margin:2px;
+}
+.skill-pill button {
+  background:none; border:none; cursor:pointer;
+  padding:0; font-size:.8rem; line-height:1; opacity:.7;
+}
+.skill-pill button:hover { opacity:1; }
+.comp-pill { background:#d1fae5; color:#065f46; }
+.lac-pill  { background:#fee2e2; color:#991b1b; }
+</style>
 </body>
 </html>
